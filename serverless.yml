@@ -1,0 +1,129 @@
+service: serverless-lab
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:GetItem
+            - dynamodb:Query
+            - dynamodb:Scan
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/Organizations
+            - arn:aws:dynamodb:${self:provider.region}:*:table/Users
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    stages:
+      - dev
+
+functions:
+  createOrganization:
+    handler: handler.createOrganization
+    events:
+      - http:
+          path: organizations
+          method: post
+
+  createUser:
+    handler: handler.createUser
+    events:
+      - http:
+          path: organizations/{orgId}/users
+          method: post
+
+  updateOrganization:
+    handler: handler.updateOrganization
+    events:
+      - http:
+          path: organizations
+          method: put
+
+  updateUser:
+    handler: handler.updateUser
+    events:
+      - http:
+          path: organizations/{orgId}/users
+          method: put
+
+  getOrganizations:
+    handler: handler.getOrganizations
+    events:
+      - http:
+          path: organizations
+          method: get
+
+  getUsers:
+    handler: handler.getUsers
+    events:
+      - http:
+          path: users
+          method: get
+
+resources:
+  Resources:
+    OrganizationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Organizations
+        AttributeDefinitions:
+          - AttributeName: orgId
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: orgId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: nameIndex
+            KeySchema:
+              - AttributeName: name
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: orgId
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: orgIdIndex
+            KeySchema:
+              - AttributeName: orgId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: emailIndex
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
