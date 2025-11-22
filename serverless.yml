@@ -29,7 +29,6 @@ provider:
 plugins:
   - serverless-dynamodb-local
   - serverless-offline
-  - serverless-offline-sqs
 
 custom:
   dynamodb:
