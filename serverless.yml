@@ -60,42 +60,42 @@ functions:
     handler: handlerLab5.createOrganization
     events:
       - http:
-          path: lab5/organizations
+          path: organizations
           method: post
 
   createUserLab5:
     handler: handlerLab5.createUser
     events:
       - http:
-          path: lab5/organizations/{orgId}/users
+          path: organizations/{orgId}/users
           method: post
 
   updateOrganizationLab5:
     handler: handlerLab5.updateOrganization
     events:
       - http:
-          path: lab5/organizations
+          path: organizations
           method: put
 
   updateUserLab5:
     handler: handlerLab5.updateUser
     events:
       - http:
-          path: lab5/organizations/{orgId}/users
+          path: organizations/{orgId}/users
           method: put
 
   getOrganizationsLab5:
     handler: handlerLab5.getOrganizations
     events:
       - http:
-          path: lab5/organizations
+          path: organizations
           method: get
 
   getUsersLab5:
     handler: handlerLab5.getUsers
     events:
       - http:
-          path: lab5/users
+          path: users
           method: get
 
   # ---------------- LAB6 асинхронні функції ----------------
