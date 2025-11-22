@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 
-const isOffline = false; //process.env.IS_OFFLINE;
+const isOffline = true; //process.env.IS_OFFLINE;
 
 const dynamodb = new AWS.DynamoDB(
   isOffline
