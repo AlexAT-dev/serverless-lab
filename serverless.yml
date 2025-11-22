@@ -16,13 +16,20 @@ provider:
             - dynamodb:GetItem
             - dynamodb:Query
             - dynamodb:Scan
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/Organizations
             - arn:aws:dynamodb:${self:provider.region}:*:table/Users
+            - arn:aws:sqs:${self:provider.region}:*:organizationQueue
+            - arn:aws:sqs:${self:provider.region}:*:userQueue
 
 plugins:
   - serverless-dynamodb-local
   - serverless-offline
+  - serverless-offline-sqs
 
 custom:
   dynamodb:
@@ -33,48 +40,111 @@ custom:
     stages:
       - dev
 
+  sqs:
+    organizationQueue:
+      url: http://localhost:9324/queue/organizationQueue
+      arn:
+        Fn::GetAtt:
+          - OrganizationQueue
+          - Arn
+    userQueue:
+      url: http://localhost:9324/queue/userQueue
+      arn:
+        Fn::GetAtt:
+          - UserQueue
+          - Arn
+
 functions:
-  createOrganization:
-    handler: handler.createOrganization
+  # ---------------- LAB5 синхронні функції ----------------
+  createOrganizationLab5:
+    handler: handlerLab5.createOrganization
     events:
       - http:
-          path: organizations
+          path: lab5/organizations
           method: post
 
-  createUser:
-    handler: handler.createUser
+  createUserLab5:
+    handler: handlerLab5.createUser
     events:
       - http:
-          path: organizations/{orgId}/users
+          path: lab5/organizations/{orgId}/users
           method: post
 
-  updateOrganization:
-    handler: handler.updateOrganization
+  updateOrganizationLab5:
+    handler: handlerLab5.updateOrganization
     events:
       - http:
-          path: organizations
+          path: lab5/organizations
           method: put
 
-  updateUser:
-    handler: handler.updateUser
+  updateUserLab5:
+    handler: handlerLab5.updateUser
     events:
       - http:
-          path: organizations/{orgId}/users
+          path: lab5/organizations/{orgId}/users
           method: put
 
-  getOrganizations:
-    handler: handler.getOrganizations
+  getOrganizationsLab5:
+    handler: handlerLab5.getOrganizations
     events:
       - http:
-          path: organizations
+          path: lab5/organizations
           method: get
 
-  getUsers:
-    handler: handler.getUsers
+  getUsersLab5:
+    handler: handlerLab5.getUsers
     events:
       - http:
-          path: users
+          path: lab5/users
           method: get
+
+  # ---------------- LAB6 асинхронні функції ----------------
+  createOrganizationLab6:
+    handler: handlerLab6.createOrganizationAsync
+    events:
+      - http:
+          path: lab6/organizations
+          method: post
+
+  createUserLab6:
+    handler: handlerLab6.createUserAsync
+    events:
+      - http:
+          path: lab6/organizations/{orgId}/users
+          method: post
+
+  updateOrganizationLab6:
+    handler: handlerLab6.updateOrganizationAsync
+    events:
+      - http:
+          path: lab6/organizations
+          method: put
+
+  updateUserLab6:
+    handler: handlerLab6.updateUserAsync
+    events:
+      - http:
+          path: lab6/organizations/{orgId}/users
+          method: put
+
+  # ---------------- SQS обробники ----------------
+  processOrganizationQueue:
+    handler: handlerLab6.processOrganizationQueue
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - OrganizationQueue
+              - Arn
+
+  processUserQueue:
+    handler: handlerLab6.processUserQueue
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - UserQueue
+              - Arn
 
 resources:
   Resources:
@@ -127,3 +197,13 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
+
+    OrganizationQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: organizationQueue
+
+    UserQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: userQueue
