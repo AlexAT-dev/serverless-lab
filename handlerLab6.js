@@ -15,13 +15,22 @@ const sqs = new AWS.SQS(
     : { region: "eu-central-1" }
 );
 
+
+
 // ------------------ SEND EVENT TO SQS ------------------
 async function sendToQueue(queueUrl, message) {
   const params = {
     QueueUrl: queueUrl,
     MessageBody: JSON.stringify(message),
   };
-  return sqs.sendMessage(params).promise();
+  try {
+    const result = await sqs.sendMessage(params).promise();
+    console.log("Message sent to SQS:", result.MessageId);
+    return result;
+  } catch (err) {
+    console.error("Failed to send message to SQS:", err);
+    throw err;
+  }
 }
 
 // ------------------ CREATE ORGANIZATION ------------------
