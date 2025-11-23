@@ -7,8 +7,8 @@ provider:
   region: eu-north-1
 
   environment:
-    ORGANIZATION_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/647597454839/organizationQueue
-    USER_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/647597454839/userQueue
+    ORGANIZATION_QUEUE_URL: https://sqs.eu-central-1.amazonaws.com/647597454839/organizationQueue
+    USER_QUEUE_URL: https://sqs.eu-central-1.amazonaws.com/647597454839/userQueue
 
   iam:
     role:
