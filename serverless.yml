@@ -4,7 +4,11 @@ frameworkVersion: "3"
 provider:
   name: aws
   runtime: nodejs18.x
-  region: eu-central-1
+  region: eu-north-1
+
+  environment:
+    ORGANIZATION_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/647597454839/organizationQueue
+    USER_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/647597454839/userQueue
 
   iam:
     role:
@@ -38,20 +42,6 @@ custom:
       migrate: true
     stages:
       - dev
-
-  sqs:
-    organizationQueue:
-      url: http://localhost:9324/queue/organizationQueue
-      arn:
-        Fn::GetAtt:
-          - OrganizationQueue
-          - Arn
-    userQueue:
-      url: http://localhost:9324/queue/userQueue
-      arn:
-        Fn::GetAtt:
-          - UserQueue
-          - Arn
 
 functions:
   # ---------------- LAB5 синхронні функції ----------------
