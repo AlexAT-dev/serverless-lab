@@ -4,7 +4,7 @@ frameworkVersion: "3"
 provider:
   name: aws
   runtime: nodejs18.x
-  region: eu-north-1
+  region: eu-central-1
 
   environment:
     ORGANIZATION_QUEUE_URL: https://sqs.eu-central-1.amazonaws.com/647597454839/organizationQueue
@@ -27,8 +27,8 @@ provider:
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/Organizations
             - arn:aws:dynamodb:${self:provider.region}:*:table/Users
-            - arn:aws:sqs:${self:provider.region}:*:organizationQueue
-            - arn:aws:sqs:${self:provider.region}:*:userQueue
+            - arn:aws:sqs:eu-central-1:647597454839:organizationQueue
+            - arn:aws:sqs:eu-central-1:647597454839:userQueue
 
 plugins:
   - serverless-dynamodb-local
@@ -121,19 +121,13 @@ functions:
     handler: handlerLab6.processOrganizationQueue
     events:
       - sqs:
-          arn:
-            Fn::GetAtt:
-              - OrganizationQueue
-              - Arn
+          arn: arn:aws:sqs:eu-central-1:647597454839:organizationQueue
 
   processUserQueue:
     handler: handlerLab6.processUserQueue
     events:
       - sqs:
-          arn:
-            Fn::GetAtt:
-              - UserQueue
-              - Arn
+          arn: arn:aws:sqs:eu-central-1:647597454839:userQueue
 
 resources:
   Resources:
@@ -186,13 +180,3 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
-
-    OrganizationQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: organizationQueue
-
-    UserQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: userQueue
